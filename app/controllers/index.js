@@ -1,4 +1,6 @@
 var MapModule = require('ti.map');
+var moment = require("alloy/moment");
+Ti.App.location = {};
 
 /**
  * Runs after the devices successfuly gets the users location
@@ -10,17 +12,31 @@ var locationCallback = function(_event) {
 
 	if (_event.success && _event.coords) {
 
-		$.MapView.setRegion({
-			latitude : _event.coords.latitude,
-			longitude : _event.coords.longitude,
-			zoom : 15,
-			tilt : 45
-		});
+		Ti.App.location = _event.coords;
+
+		if (OS_IOS) {
+
+			var cam = MapModule.createCamera({
+				altitude : 600,
+				centerCoordinate : {
+					latitude : Ti.App.location.latitude,
+					longitude : Ti.App.location.longitude
+				},
+				heading : Ti.App.location.heading,
+				pitch : 45
+			});
+
+			$.MapView.animateCamera({
+				camera : cam,
+				curve : Ti.UI.ANIMATION_CURVE_EASE_IN
+			});
+
+			$.MapView.userLocation = true;
+
+		}
 
 		// Remove the vent listener
 		Ti.Geolocation.removeEventListener('location', locationCallback);
-
-		$.MapView.userLocation = true;
 
 	} else {
 
@@ -29,6 +45,30 @@ var locationCallback = function(_event) {
 	}
 
 };
+
+/**
+ * Fires when the map completes loading
+ * @param {object} data
+ * @return {null} updates the ui
+ * @author sam
+ */
+$.MapView.addEventListener('complete', function(_event) {
+
+	if (OS_ANDROID) {
+
+		$.MapView.setRegion({
+			latitude : Ti.App.location.latitude,
+			longitude : Ti.App.location.longitude,
+			bearing : Ti.App.location.heading,
+			zoom : 15,
+			tilt : 45
+		});
+
+		$.MapView.userLocation = true;
+
+	}
+
+});
 
 /**
  * Listeners to the window open
@@ -41,7 +81,7 @@ function showCurrentPosition(_event) {
 	if (Ti.Geolocation.hasLocationPermissions(Ti.Geolocation.AUTHORIZATION_WHEN_IN_USE)) {
 
 		Ti.Geolocation.addEventListener('location', locationCallback);
-		
+
 	}
 
 	/**

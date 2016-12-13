@@ -3,7 +3,7 @@ var moment = require("alloy/moment");
 Ti.App.location = {};
 
 /**
- * Runs after the devices successfuly gets the users location
+ * Runs after the devices successfully gets the users location
  * @param {object} data
  * @return {null} updates the ui
  * @author sam
@@ -17,13 +17,17 @@ var locationCallback = function(_event) {
 		if (OS_IOS) {
 
 			var cam = MapModule.createCamera({
-				altitude : 600,
+				altitude : 500,
 				centerCoordinate : {
 					latitude : Ti.App.location.latitude,
 					longitude : Ti.App.location.longitude
 				},
+				eyeCoordinate : {
+					latitude : Ti.App.location.latitude,
+					longitude : Ti.App.location.longitude
+				},
 				heading : Ti.App.location.heading,
-				pitch : 45
+				pitch : 70
 			});
 
 			$.MapView.animateCamera({

@@ -1,0 +1,5 @@
+<Alloy>
+	<Window class="container" onOpen="showCurrentPosition">
+		<Module id="MapView" module="ti.map" method="createView" />
+	</Window>
+</Alloy>
